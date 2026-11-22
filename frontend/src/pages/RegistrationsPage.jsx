@@ -10,7 +10,7 @@ import {
   RotateCcw,
 } from "lucide-react";
 import useDebounce from "../hooks/useDebounce";
-import { getRegistrations, getSummary } from "../api/sample-data";
+import { getRegistrations, getSummary } from "../api/registrationsApi";
 import KpiCards from "../components/KpiCards";
 import RegistrationFilters from "../components/RegistrationFilters";
 import RegistrationTable from "../components/RegistrationTable";
