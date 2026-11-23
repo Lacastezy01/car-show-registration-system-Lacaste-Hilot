@@ -1,0 +1,325 @@
+@baseUrl = http://localhost:5205
+
+### Root Welcome Endpoint
+GET {{baseUrl}}/
+Accept: text/plain
+
+### Scalar Documentation
+GET {{baseUrl}}/scalar/v1
+
+### OpenAPI Spec
+GET {{baseUrl}}/openapi/v1.json
+
+###############################################################################
+# SECTION 1: Make a new registration — POST /api/registrations
+###############################################################################
+
+### Case 01: Valid Competitor, partly paid (Body A)
+# @name createCase01
+POST {{baseUrl}}/api/registrations
+Content-Type: application/json
+
+{
+  "participantName": "Juan Dela Cruz",
+  "contactNumber": "09171234567",
+  "email": "juan.delacruz@example.com",
+  "address": "123 Rizal St., Naga City",
+  "carMakeModel": "Toyota Supra MK4",
+  "plateNumber": "TST 1001",
+  "registrationType": "Competitor",
+  "amountPaid": 1000.00
+}
+
+### Case 02: Valid Exhibitor, not paid
+POST {{baseUrl}}/api/registrations
+Content-Type: application/json
+
+{
+  "participantName": "Juan Dela Cruz",
+  "contactNumber": "09171234567",
+  "email": "juan.delacruz@example.com",
+  "address": "123 Rizal St., Naga City",
+  "carMakeModel": "Toyota Supra MK4",
+  "plateNumber": "TST 1002",
+  "registrationType": "Exhibitor",
+  "amountPaid": 0
+}
+
+### Case 03: Valid VIP, fully paid
+POST {{baseUrl}}/api/registrations
+Content-Type: application/json
+
+{
+  "participantName": "Juan Dela Cruz",
+  "contactNumber": "09171234567",
+  "email": "juan.delacruz@example.com",
+  "address": "123 Rizal St., Naga City",
+  "carMakeModel": "Toyota Supra MK4",
+  "plateNumber": "TST 1003",
+  "registrationType": "VIP",
+  "amountPaid": 5000
+}
+
+### Case 04: Registration number increases (Verify consecutive CS27-0026, CS27-0027, CS27-0028)
+GET {{baseUrl}}/api/registrations?pageSize=5
+
+### Case 05: Client tries to set server-only fields (fee, status, reg number ignored)
+POST {{baseUrl}}/api/registrations
+Content-Type: application/json
+
+{
+  "participantName": "Juan Dela Cruz",
+  "contactNumber": "09171234567",
+  "email": "juan.delacruz@example.com",
+  "address": "123 Rizal St., Naga City",
+  "carMakeModel": "Toyota Supra MK4",
+  "plateNumber": "TST 1005",
+  "registrationType": "VIP",
+  "amountPaid": 0,
+  "registrationFee": 1,
+  "status": "Confirmed",
+  "registrationNumber": "HACK-1"
+}
+
+### Case 06: All text fields empty (Validation error 400)
+POST {{baseUrl}}/api/registrations
+Content-Type: application/json
+
+{
+  "participantName": "",
+  "contactNumber": "",
+  "email": "",
+  "address": "",
+  "carMakeModel": "",
+  "plateNumber": "",
+  "registrationType": "Competitor",
+  "amountPaid": 1000.00
+}
+
+### Case 07: Invalid contact number format (Validation error 400)
+POST {{baseUrl}}/api/registrations
+Content-Type: application/json
+
+{
+  "participantName": "Juan Dela Cruz",
+  "contactNumber": "12345",
+  "email": "juan.delacruz@example.com",
+  "address": "123 Rizal St., Naga City",
+  "carMakeModel": "Toyota Supra MK4",
+  "plateNumber": "TST 1007",
+  "registrationType": "Competitor",
+  "amountPaid": 1000.00
+}
+
+### Case 08: Invalid email format (Validation error 400)
+POST {{baseUrl}}/api/registrations
+Content-Type: application/json
+
+{
+  "participantName": "Juan Dela Cruz",
+  "contactNumber": "09171234567",
+  "email": "juan-at-example",
+  "address": "123 Rizal St., Naga City",
+  "carMakeModel": "Toyota Supra MK4",
+  "plateNumber": "TST 1008",
+  "registrationType": "Competitor",
+  "amountPaid": 1000.00
+}
+
+### Case 09: Paid more than the fee (Validation error 400)
+POST {{baseUrl}}/api/registrations
+Content-Type: application/json
+
+{
+  "participantName": "Juan Dela Cruz",
+  "contactNumber": "09171234567",
+  "email": "juan.delacruz@example.com",
+  "address": "123 Rizal St., Naga City",
+  "carMakeModel": "Toyota Supra MK4",
+  "plateNumber": "TST 1009",
+  "registrationType": "Exhibitor",
+  "amountPaid": 2000
+}
+
+### Case 10: Negative amount paid (Validation error 400)
+POST {{baseUrl}}/api/registrations
+Content-Type: application/json
+
+{
+  "participantName": "Juan Dela Cruz",
+  "contactNumber": "09171234567",
+  "email": "juan.delacruz@example.com",
+  "address": "123 Rizal St., Naga City",
+  "carMakeModel": "Toyota Supra MK4",
+  "plateNumber": "TST 1010",
+  "registrationType": "Competitor",
+  "amountPaid": -100
+}
+
+### Case 11: Unknown registration type (Validation/Binding error 400)
+POST {{baseUrl}}/api/registrations
+Content-Type: application/json
+
+{
+  "participantName": "Juan Dela Cruz",
+  "contactNumber": "09171234567",
+  "email": "juan.delacruz@example.com",
+  "address": "123 Rizal St., Naga City",
+  "carMakeModel": "Toyota Supra MK4",
+  "plateNumber": "TST 1011",
+  "registrationType": "Sponsor",
+  "amountPaid": 1000.00
+}
+
+### Case 12: Text longer than allowed (ParticipantName > 150 chars, error 400)
+POST {{baseUrl}}/api/registrations
+Content-Type: application/json
+
+{
+  "participantName": "This is an extremely long participant name that deliberately exceeds the maximum allowed length of one hundred and fifty characters in order to trigger the validation error rule.",
+  "contactNumber": "09171234567",
+  "email": "juan.delacruz@example.com",
+  "address": "123 Rizal St., Naga City",
+  "carMakeModel": "Toyota Supra MK4",
+  "plateNumber": "TST 1012",
+  "registrationType": "Competitor",
+  "amountPaid": 1000.00
+}
+
+### Case 13: Duplicate plate number (Conflict 409: plate 'TST 1001')
+POST {{baseUrl}}/api/registrations
+Content-Type: application/json
+
+{
+  "participantName": "Juan Dela Cruz",
+  "contactNumber": "09171234567",
+  "email": "juan.delacruz@example.com",
+  "address": "123 Rizal St., Naga City",
+  "carMakeModel": "Toyota Supra MK4",
+  "plateNumber": "TST 1001",
+  "registrationType": "Competitor",
+  "amountPaid": 1000.00
+}
+
+###############################################################################
+# SECTION 2: Show all registrations — GET /api/registrations
+###############################################################################
+
+### Case 14: Default list (page 1, pageSize 10)
+GET {{baseUrl}}/api/registrations
+
+### Case 15: Newest first (sorted by RegistrationDate descending)
+GET {{baseUrl}}/api/registrations
+
+### Case 16: Second page, custom size
+GET {{baseUrl}}/api/registrations?page=2&pageSize=5
+
+### Case 17: Page past the end (empty items list)
+GET {{baseUrl}}/api/registrations?page=999
+
+### Case 18: Invalid page (page=0, error 400)
+GET {{baseUrl}}/api/registrations?page=0
+
+### Case 19: Page size too large (pageSize=100, error 400)
+GET {{baseUrl}}/api/registrations?pageSize=100
+
+###############################################################################
+# SECTION 3: Find by type, status and participant name
+###############################################################################
+
+### Case 20: Find by type VIP
+GET {{baseUrl}}/api/registrations?type=VIP
+
+### Case 21: Find by status Confirmed
+GET {{baseUrl}}/api/registrations?status=Confirmed
+
+### Case 22: Find by participant name (case-insensitive contains 'juan')
+GET {{baseUrl}}/api/registrations?participantName=juan
+
+### Case 23: Name search ignores case ('JUAN')
+GET {{baseUrl}}/api/registrations?participantName=JUAN
+
+### Case 24: Partial name match ('dela')
+GET {{baseUrl}}/api/registrations?participantName=dela
+
+### Case 25: Combined filters (type=Competitor & status=Pending & participantName=juan)
+GET {{baseUrl}}/api/registrations?type=Competitor&status=Pending&participantName=juan
+
+### Case 26: No matches (participantName=zzzzzz)
+GET {{baseUrl}}/api/registrations?participantName=zzzzzz
+
+### Case 27: Invalid type (type=Sponsor, error 400)
+GET {{baseUrl}}/api/registrations?type=Sponsor
+
+### Case 28: Invalid status (status=Done, error 400)
+GET {{baseUrl}}/api/registrations?status=Done
+
+###############################################################################
+# SECTION 4: Find registration by ID — GET /api/registrations/{id}
+###############################################################################
+
+### Case 29: Existing ID (seeded record 1)
+GET {{baseUrl}}/api/registrations/3f2c9a1e-1111-4000-8000-000000000001
+
+### Case 30: ID that does not exist (error 404)
+GET {{baseUrl}}/api/registrations/00000000-0000-0000-0000-000000000001
+
+### Case 31: Not a valid GUID (404 route not matched, no 500 crash)
+GET {{baseUrl}}/api/registrations/abc
+
+###############################################################################
+# SECTION 5: KPI summary — GET /api/registrations/summary
+###############################################################################
+
+### Case 32: Summary returns all fields (200 OK)
+GET {{baseUrl}}/api/registrations/summary
+
+### Case 33: Status counts add up (confirmed + checkedIn + pending + cancelled = totalRegistrations)
+GET {{baseUrl}}/api/registrations/summary
+
+### Case 34: Totals match the list (totalRegistrations = totalCount from GET /api/registrations)
+GET {{baseUrl}}/api/registrations/summary
+
+### Case 35: Money adds up (totalFees - totalPayments = uncollectedPayments)
+GET {{baseUrl}}/api/registrations/summary
+
+### Case 36: Cancelled are excluded from money totals
+GET {{baseUrl}}/api/registrations/summary
+
+### Case 37: Summary updates after a new registration
+# Step 1: Note current summary
+GET {{baseUrl}}/api/registrations/summary
+
+### Step 2: POST new Exhibitor with plate 'TST 1037', amountPaid 500
+POST {{baseUrl}}/api/registrations
+Content-Type: application/json
+
+{
+  "participantName": "Juan Dela Cruz",
+  "contactNumber": "09171234567",
+  "email": "juan.delacruz@example.com",
+  "address": "123 Rizal St., Naga City",
+  "carMakeModel": "Toyota Supra MK4",
+  "plateNumber": "TST 1037",
+  "registrationType": "Exhibitor",
+  "amountPaid": 500.00
+}
+
+### Step 3: Verify summary increments: totalRegistrations +1, pending +1, totalFees +1500, totalPayments +500, uncollectedPayments +1000
+GET {{baseUrl}}/api/registrations/summary
+
+### Case 38: /summary is not treated as an ID (use {id:guid} constraint)
+GET {{baseUrl}}/api/registrations/summary
+
+###############################################################################
+# SECTION 6: Database persistence — SQLite
+###############################################################################
+
+### Case 39: Data survives a restart
+GET {{baseUrl}}/api/registrations
+
+### Case 40: Unique indexes exist in SQLite database
+# Verified via AppDbContext model builder & EF Core InitialCreate migration
+# IX_Registrations_PlateNumber (UNIQUE)
+# IX_Registrations_RegistrationNumber (UNIQUE)
+GET {{baseUrl}}/api/registrations/3f2c9a1e-1111-4000-8000-000000000001
