@@ -3,6 +3,12 @@ node_modules/
 dist/
 bin/
 obj/
+.vs/
+
+# SQLite databases
+*.db
+*.db-shm
+*.db-wal
 
 # Environment files
 .env*
@@ -15,3 +21,4 @@ Thumbs.db
 .idea/
 *.suo
 *.user
+
